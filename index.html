@@ -3,744 +3,656 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>OYA×TCU シフト（デモ）｜尾山台商店街 × 東京都市大学</title>
-  <meta name="description" content="尾山台商店街の“タイミー風”学生向けスポットシフト。0限〜7限の授業ペースに合わせて応募できるデモWebページ。">
+  <title>OYA×TCU シフト（完成デモ）｜尾山台商店街 × 東京都市大学</title>
+  <meta name="description" content="尾山台商店街の“タイミー風”学生向けスポットシフト。0限〜7限の授業ペースに合わせて応募できる完成デモWebページ。">
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
   <style>
-    :root{
-      /* “TCUブルー”を意識したトーン（※非公式・参考色） */
-      --tcu-blue:#0B4EA2;
-      --tcu-blue-2:#0A3E85;
-      --ink:#0B1220;
-      --muted:#5A6578;
-      --bg:#F4F7FB;
-      --card:#FFFFFF;
-      --line:rgba(14, 25, 44, .10);
-      --shadow:0 16px 40px rgba(10, 20, 40, .10);
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", "Segoe UI", Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
-      color:var(--ink);
-      background: radial-gradient(1000px 520px at 18% 0%, rgba(11,78,162,.22), transparent 55%),
-                  radial-gradient(900px 520px at 95% 10%, rgba(11,78,162,.12), transparent 55%),
-                  var(--bg);
-    }
+    :root{--tcu-blue:#0B4EA2;--tcu-blue-2:#0A3E85;--ink:#0B1220;--muted:#5A6578;--bg:#F4F7FB;--line:rgba(14, 25, 44, .10);--shadow:0 16px 40px rgba(10, 20, 40, .10);--radius:18px;}
+    *{box-sizing:border-box} html,body{height:100%}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,"Hiragino Sans","Noto Sans JP","Segoe UI",Roboto,Arial,"Apple Color Emoji","Segoe UI Emoji";color:var(--ink);
+      background:radial-gradient(1000px 520px at 18% 0%, rgba(11,78,162,.22), transparent 55%),
+                 radial-gradient(900px 520px at 95% 10%, rgba(11,78,162,.12), transparent 55%), var(--bg);}
     a{color:inherit}
-    .wrap{max-width:1180px;margin:0 auto;padding:22px 18px 60px}
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:14px 14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.75);
-      backdrop-filter: blur(10px);
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(10,20,40,.08);
-    }
-    .brand{display:flex;align-items:center;gap:12px;min-width:240px}
-    .logo{
-      width:44px;height:44px;border-radius:14px;
-      background: linear-gradient(145deg, var(--tcu-blue), #2F86FF);
-      box-shadow: 0 10px 22px rgba(11,78,162,.22);
-      display:grid;place-items:center;flex:0 0 auto;
-      position:relative;overflow:hidden;
-    }
-    .logo svg{width:30px;height:30px}
+    .wrap{max-width:1180px;margin:0 auto;padding:18px 18px 64px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--line);
+      background:rgba(255,255,255,.75);backdrop-filter:blur(10px);border-radius:16px;box-shadow:0 10px 30px rgba(10,20,40,.08);
+      position:sticky;top:12px;z-index:30;}
+    .brand{display:flex;align-items:center;gap:12px;min-width:220px}
+    .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(145deg,var(--tcu-blue),#2F86FF);
+      box-shadow:0 10px 22px rgba(11,78,162,.22);display:grid;place-items:center;flex:0 0 auto;position:relative;overflow:hidden;}
+    .logo svg{width:28px;height:28px}
     .brand h1{font-size:14.5px;line-height:1.1;margin:0}
     .brand p{margin:3px 0 0;font-size:12px;color:var(--muted)}
-    .pillrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .pill{
-      display:inline-flex;align-items:center;gap:8px;
-      font-size:12px;color:var(--tcu-blue-2);
-      padding:8px 10px;border-radius:999px;
-      background: rgba(11,78,162,.08);
-      border: 1px solid rgba(11,78,162,.18);
-      user-select:none;
-    }
-    .pill small{color:var(--muted)}
-    .hero{
-      margin-top:18px;
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:16px;
-      align-items:stretch;
-    }
-    @media (max-width: 900px){
-      .hero{grid-template-columns:1fr}
-      .brand{min-width:auto}
-    }
-    .panel{
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.8);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position:relative;
-    }
-    .heroLeft{
-      padding:20px 20px 16px;
-      background:
-        radial-gradient(700px 300px at 10% 0%, rgba(11,78,162,.22), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.78));
-    }
+    .pill{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--tcu-blue-2);padding:8px 10px;border-radius:999px;
+      background:rgba(11,78,162,.08);border:1px solid rgba(11,78,162,.18);user-select:none;white-space:nowrap;}
+    .menuRow{display:flex;align-items:center;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+    .menuBtn{cursor:pointer;user-select:none;padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);
+      box-shadow:0 10px 18px rgba(10,20,40,.06);font-size:12.5px;font-weight:900;color:var(--tcu-blue-2);
+      display:inline-flex;align-items:center;gap:8px;transition:transform .08s ease, background .15s ease, border-color .15s ease;text-decoration:none;}
+    .menuBtn:active{transform:translateY(1px)} .menuBtn.active{background:rgba(11,78,162,.10);border-color:rgba(11,78,162,.25)}
+    .menuIcon{width:18px;height:18px;border-radius:6px;background:rgba(11,78,162,.10);display:grid;place-items:center;font-size:12px}
+    .hamburger{width:42px;height:42px;border-radius:14px;border:1px solid var(--line);background:#fff;box-shadow:0 10px 18px rgba(10,20,40,.06);
+      display:grid;place-items:center;cursor:pointer;}
+    .hamburger span{display:block;width:18px;height:2px;background:var(--tcu-blue-2);border-radius:999px;position:relative}
+    .hamburger span:before,.hamburger span:after{content:"";position:absolute;left:0;width:18px;height:2px;background:var(--tcu-blue-2);border-radius:999px}
+    .hamburger span:before{top:-6px} .hamburger span:after{top:6px}
+    .drawerBackdrop{position:fixed;inset:0;background:rgba(10,18,32,.55);display:none;z-index:50}
+    .drawerBackdrop.show{display:block}
+    .drawer{position:fixed;top:12px;right:12px;bottom:12px;width:min(360px, calc(100% - 24px));background:rgba(255,255,255,.92);
+      border:1px solid var(--line);border-radius:22px;box-shadow:0 30px 80px rgba(0,0,0,.28);padding:12px;transform:translateX(110%);
+      transition:transform .18s ease;z-index:55;backdrop-filter:blur(10px);display:flex;flex-direction:column;gap:10px;}
+    .drawer.show{transform:translateX(0)}
+    .drawerHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 6px 10px}
+    .x{border:none;background:#fff;cursor:pointer;width:40px;height:40px;border-radius:14px;display:grid;place-items:center;border:1px solid var(--line);
+      box-shadow:0 10px 16px rgba(10,20,40,.08);font-weight:900}
+    .drawerGrid{display:grid;gap:10px;padding:0 6px 6px} .drawerGrid a{justify-content:flex-start}
+    .stage{margin-top:14px;min-height:calc(100vh - 110px);position:relative}
+    .page{display:none;animation:pageIn .22s ease both} .page.show{display:block} .page.out{animation:pageOut .18s ease both}
+    @keyframes pageIn{from{opacity:0;transform:translateY(10px) scale(.992)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes pageOut{from{opacity:1;transform:translateY(0) scale(1)}to{opacity:0;transform:translateY(-8px) scale(.994)}}
+    .glassPanel{border:1px solid var(--line);background:rgba(255,255,255,.82);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+    .glassPanel:before{content:"";position:absolute;inset:-40px -40px auto -40px;height:140px;background:radial-gradient(800px 140px at 20% 0%, rgba(11,78,162,.18), transparent 60%);pointer-events:none}
+    .heroBanner{margin-bottom:14px;display:grid;grid-template-columns:1fr 420px;gap:14px;align-items:stretch}
+    @media (max-width:980px){.heroBanner{grid-template-columns:1fr}}
+    .bannerCopy{padding:16px}
+    .bannerCopy h2{margin:8px 0 0;font-size:22px;line-height:1.25}
+    .bannerCopy p{margin:10px 0 0;color:var(--muted);font-size:13.5px;line-height:1.85;max-width:70ch}
+    .bannerImg{border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);background:#fff;position:relative;min-height:220px}
+    .bannerImg img{width:100%;height:100%;object-fit:cover;display:block}
+    .bannerImg .overlay{position:absolute;inset:0;background:linear-gradient(180deg, rgba(10,18,32,.00), rgba(10,18,32,.35))}
+    .bannerImg .cap{position:absolute;left:14px;bottom:12px;right:14px;color:#fff;font-weight:900;font-size:12.5px;text-shadow:0 8px 22px rgba(0,0,0,.28);
+      display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .cap span{font-weight:700;opacity:.9}
     .kicker{display:inline-flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
     .dot{width:9px;height:9px;border-radius:999px;background:var(--tcu-blue);box-shadow:0 0 0 4px rgba(11,78,162,.12)}
+    .hero{display:grid;grid-template-columns:1.18fr .82fr;gap:14px;align-items:stretch}
+    @media (max-width:920px){.hero{grid-template-columns:1fr}}
+    .heroLeft{padding:18px}
     .heroTitle{margin:10px 0 8px;font-size:28px;line-height:1.25;letter-spacing:-.02em}
     .heroTitle span{color:var(--tcu-blue)}
-    .heroDesc{margin:0;color:var(--muted);font-size:14px;line-height:1.8;max-width:56ch}
-    .searchRow{
-      margin-top:14px;
-      display:grid;grid-template-columns: 1fr auto;gap:10px;
-      align-items:center;
-    }
-    @media (max-width: 520px){
-      .searchRow{grid-template-columns:1fr}
-    }
-    .search{
-      display:flex;align-items:center;gap:10px;
-      border:1px solid var(--line);
-      background:#fff;
-      border-radius: 14px;
-      padding:10px 12px;
-      box-shadow: 0 10px 24px rgba(10,20,40,.06);
-    }
-    .search input{
-      border:none;outline:none;font-size:14px;width:100%;
-    }
-    .btn{
-      appearance:none;border:none;cursor:pointer;
-      border-radius:14px;
-      padding:12px 14px;
-      font-weight:700;
-      background: linear-gradient(135deg, var(--tcu-blue), #2F86FF);
-      color:#fff;
-      box-shadow: 0 14px 28px rgba(11,78,162,.22);
-      transition: transform .08s ease, filter .2s ease;
-      display:inline-flex;align-items:center;gap:10px;justify-content:center;
-    }
-    .btn:active{transform: translateY(1px)}
-    .btn.secondary{
-      background:#fff;color:var(--tcu-blue);
-      border:1px solid rgba(11,78,162,.25);
-      box-shadow: 0 10px 24px rgba(10,20,40,.06);
-    }
-    .heroRight{
-      padding:18px;
-      display:flex;flex-direction:column;gap:12px;
-      background:
-        radial-gradient(700px 280px at 90% 10%, rgba(11,78,162,.14), transparent 60%),
-        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.78));
-    }
-    .stats{
-      display:grid;grid-template-columns: 1fr 1fr;gap:10px;
-    }
-    .stat{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:#fff;
-      padding:12px 12px 10px;
-      box-shadow: 0 10px 24px rgba(10,20,40,.06);
-    }
-    .stat b{display:block;font-size:18px}
-    .stat span{font-size:12px;color:var(--muted)}
-    .miniCard{
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:#fff;
-      overflow:hidden;
-      display:grid;grid-template-columns: 96px 1fr;
-      box-shadow: 0 10px 24px rgba(10,20,40,.06);
-    }
+    .heroDesc{margin:0;color:var(--muted);font-size:14px;line-height:1.85;max-width:60ch}
+    .searchRow{margin-top:14px;display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+    @media (max-width:560px){.searchRow{grid-template-columns:1fr}}
+    .search{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:#fff;border-radius:14px;padding:10px 12px;box-shadow:0 10px 24px rgba(10,20,40,.06)}
+    .search input{border:none;outline:none;font-size:14px;width:100%}
+    .btn{appearance:none;border:none;cursor:pointer;border-radius:14px;padding:12px 14px;font-weight:800;background:linear-gradient(135deg,var(--tcu-blue),#2F86FF);
+      color:#fff;box-shadow:0 14px 28px rgba(11,78,162,.22);transition:transform .08s ease;display:inline-flex;align-items:center;gap:10px;justify-content:center;text-decoration:none}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:#fff;color:var(--tcu-blue);border:1px solid rgba(11,78,162,.25);box-shadow:0 10px 24px rgba(10,20,40,.06)}
+    .heroRight{padding:16px;display:flex;flex-direction:column;gap:12px}
+    .stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px 12px 10px;box-shadow:0 10px 24px rgba(10,20,40,.06)}
+    .stat b{display:block;font-size:18px} .stat span{font-size:12px;color:var(--muted)}
+    .miniCard{border:1px solid var(--line);border-radius:16px;background:#fff;overflow:hidden;display:grid;grid-template-columns:96px 1fr;box-shadow:0 10px 24px rgba(10,20,40,.06)}
     .miniCard img{width:96px;height:100%;object-fit:cover}
-    .miniCard .mc{
-      padding:12px 12px 10px;
-    }
-    .miniCard h3{margin:0;font-size:13.5px}
-    .miniCard p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.6}
-    .tabs{
-      margin-top:14px;
-      display:flex;gap:8px;flex-wrap:wrap;
-    }
-    .tab{
-      cursor:pointer;user-select:none;
-      padding:10px 12px;border-radius:999px;
-      background: rgba(255,255,255,.75);
-      border:1px solid var(--line);
-      box-shadow: 0 10px 20px rgba(10,20,40,.06);
-      font-size:12.5px;color:var(--muted);
-      transition: background .15s ease, border-color .15s ease, color .15s ease;
-      display:inline-flex;align-items:center;gap:8px;
-    }
-    .tab strong{color:var(--ink);font-weight:800}
-    .tab.active{
-      background: rgba(11,78,162,.10);
-      border-color: rgba(11,78,162,.25);
-      color:var(--tcu-blue-2);
-    }
-    .grid{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap:14px;
-    }
-    .card{
-      grid-column: span 6;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.86);
-      border-radius: var(--radius);
-      overflow:hidden;
-      box-shadow: var(--shadow);
-      display:grid;grid-template-columns: 168px 1fr;
-      min-height:158px;
-    }
-    @media (max-width: 940px){
-      .card{grid-column:span 12}
-    }
-    @media (max-width: 520px){
-      .card{grid-template-columns:1fr}
-      .card .thumb{height:170px}
-    }
-    .thumb{
-      position:relative;
-      background:#fff;
-      overflow:hidden;
-    }
+    .miniCard .mc{padding:12px 12px 10px} .miniCard h3{margin:0;font-size:13.5px}
+    .miniCard p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.65}
+    .tabs{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+    .tab{cursor:pointer;user-select:none;padding:10px 12px;border-radius:999px;background:rgba(255,255,255,.75);border:1px solid var(--line);
+      box-shadow:0 10px 20px rgba(10,20,40,.06);font-size:12.5px;color:var(--muted);transition:background .15s ease, border-color .15s ease, color .15s ease;
+      display:inline-flex;align-items:center;gap:8px}
+    .tab strong{color:var(--ink);font-weight:900}
+    .tab.active{background:rgba(11,78,162,.10);border-color:rgba(11,78,162,.25);color:var(--tcu-blue-2)}
+    .mainSplit{margin-top:14px;display:grid;grid-template-columns:1fr 420px;gap:14px;align-items:start}
+    @media (max-width:980px){.mainSplit{grid-template-columns:1fr}}
+    .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .card{grid-column:span 12;border:1px solid var(--line);background:rgba(255,255,255,.86);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);
+      display:grid;grid-template-columns:168px 1fr;min-height:158px;cursor:pointer;position:relative}
+    .card:after{content:"";position:absolute;inset:0;background:radial-gradient(600px 220px at 10% 0%, rgba(11,78,162,.10), transparent 55%);opacity:.55;pointer-events:none}
+    @media (max-width:520px){.card{grid-template-columns:1fr}.card .thumb{height:170px}}
+    .thumb{position:relative;background:#fff;overflow:hidden;z-index:1}
     .thumb img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05)}
-    .badge{
-      position:absolute;left:12px;top:12px;
-      background: rgba(255,255,255,.92);
-      border:1px solid var(--line);
-      border-radius:999px;
-      font-size:11.5px;
-      padding:7px 10px;
-      display:inline-flex;align-items:center;gap:8px;
-      box-shadow: 0 12px 20px rgba(10,20,40,.10);
-    }
-    .badge .chip{
-      width:8px;height:8px;border-radius:999px;background:var(--tcu-blue);
-      box-shadow:0 0 0 4px rgba(11,78,162,.12);
-    }
-    .body{
-      padding:14px 14px 12px;
-      display:flex;flex-direction:column;gap:8px;
-    }
+    .badge{position:absolute;left:12px;top:12px;z-index:2;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;font-size:11.5px;
+      padding:7px 10px;display:inline-flex;align-items:center;gap:8px;box-shadow:0 12px 20px rgba(10,20,40,.10)}
+    .badge .chip{width:8px;height:8px;border-radius:999px;background:var(--tcu-blue);box-shadow:0 0 0 4px rgba(11,78,162,.12)}
+    .body{padding:14px 14px 12px;display:flex;flex-direction:column;gap:8px;z-index:1}
     .titleRow{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
     .titleRow h2{margin:0;font-size:15.5px;line-height:1.35}
-    .meta{
-      margin:0;color:var(--muted);font-size:12.5px;line-height:1.6
-    }
+    .meta{margin:0;color:var(--muted);font-size:12.5px;line-height:1.6}
     .meta b{color:var(--ink)}
-    .row{
-      display:flex;gap:8px;flex-wrap:wrap;
-    }
-    .tag{
-      font-size:11.5px;color:var(--tcu-blue-2);
-      background: rgba(11,78,162,.08);
-      border:1px solid rgba(11,78,162,.15);
-      padding:6px 10px;border-radius:999px;
-    }
-    .actions{
-      margin-top:auto;
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-    }
-    .linklike{
-      cursor:pointer;
-      font-weight:800;
-      font-size:12.5px;
-      color:var(--tcu-blue-2);
-      text-decoration: none;
-      display:inline-flex;align-items:center;gap:8px;
-      padding:10px 12px;border-radius:14px;
-      background:#fff;border:1px solid var(--line);
-      box-shadow: 0 10px 18px rgba(10,20,40,.06);
-    }
-    .foot{
-      margin-top:18px;
-      color:var(--muted);
-      font-size:12px;line-height:1.75;
-      padding:14px 16px;
-      border-radius:16px;
-      border:1px solid var(--line);
-      background: rgba(255,255,255,.72);
-    }
-    /* modal */
-    .modalWrap{
-      position:fixed;inset:0;display:none;place-items:center;
-      background: rgba(10,18,32,.55);
-      padding:18px;
-      z-index:50;
-    }
-    .modalWrap.show{display:grid}
-    .modal{
-      width:min(900px, 100%);
-      border-radius: 22px;
-      background:#fff;
-      border:1px solid rgba(255,255,255,.15);
-      overflow:hidden;
-      box-shadow: 0 30px 80px rgba(0,0,0,.35);
-      display:grid;grid-template-columns: 1fr 1.2fr;
-    }
-    @media (max-width: 820px){
-      .modal{grid-template-columns:1fr}
-    }
-    .modalImg{min-height:250px}
-    .modalImg img{width:100%;height:100%;object-fit:cover;display:block}
-    .modalBody{padding:16px 16px 14px}
-    .modalHead{
-      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;
-      margin-bottom:8px;
-    }
-    .modalHead h2{margin:0;font-size:18px;line-height:1.3}
-    .x{
-      border:none;background:#fff;cursor:pointer;
-      width:40px;height:40px;border-radius:14px;
-      display:grid;place-items:center;
-      border:1px solid var(--line);
-      box-shadow: 0 10px 16px rgba(10,20,40,.08);
-    }
-    .dl{
-      margin:10px 0 12px;
-      display:grid;gap:10px;
-    }
-    .kv{
-      display:grid;grid-template-columns: 110px 1fr;gap:10px;
-      padding:10px 12px;border:1px solid var(--line);
-      border-radius:16px;background:#fff;
-    }
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    .tag{font-size:11.5px;color:var(--tcu-blue-2);background:rgba(11,78,162,.08);border:1px solid rgba(11,78,162,.15);padding:6px 10px;border-radius:999px}
+    .actions{margin-top:auto;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .linklike{cursor:pointer;font-weight:900;font-size:12.5px;color:var(--tcu-blue-2);text-decoration:none;display:inline-flex;align-items:center;gap:8px;
+      padding:10px 12px;border-radius:14px;background:#fff;border:1px solid var(--line);box-shadow:0 10px 18px rgba(10,20,40,.06)}
+    .mapPanel{border:1px solid var(--line);background:rgba(255,255,255,.86);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;min-height:520px}
+    .mapHead{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80))}
+    .mapHead b{font-size:13px} .mapHead span{font-size:12px;color:var(--muted)}
+    #mapMini{width:100%;height:520px}
+    .mapCta{display:flex;gap:10px;flex-wrap:wrap}
+    .mapFull{border:1px solid var(--line);background:rgba(255,255,255,.86);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+    .mapFullHead{padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.80))}
+    #mapFull{width:100%;height:70vh;min-height:520px}
+    .detail{border:1px solid var(--line);background:rgba(255,255,255,.86);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
+    .detailTop{display:grid;grid-template-columns:1.1fr .9fr}
+    @media (max-width:880px){.detailTop{grid-template-columns:1fr}}
+    .detailImg img{width:100%;height:100%;object-fit:cover;display:block;min-height:260px}
+    .detailBody{padding:16px 16px 14px}
+    .detailBody h2{margin:0;font-size:20px;line-height:1.25}
+    .kvgrid{margin-top:12px;display:grid;gap:10px}
+    .kv{display:grid;grid-template-columns:120px 1fr;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:#fff}
     .kv dt{color:var(--muted);font-size:12px}
-    .kv dd{margin:0;font-weight:800;font-size:13px}
-    .note{
-      margin:0;color:var(--muted);font-size:12.5px;line-height:1.7
-    }
-    .modalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .tiny{font-size:11.5px;color:var(--muted)}
-    .toast{
-      position:fixed;left:50%;transform:translateX(-50%);
-      bottom:18px;
-      background: rgba(255,255,255,.92);
-      border:1px solid var(--line);
-      border-radius: 999px;
-      padding:10px 12px;
-      box-shadow: 0 18px 40px rgba(10,20,40,.18);
-      display:none;gap:10px;align-items:center;
-      z-index:60;
-      font-size:12.5px;
-    }
-    .toast.show{display:flex}
-    .toast .tDot{width:9px;height:9px;border-radius:999px;background:var(--tcu-blue)}
+    .kv dd{margin:0;font-weight:900;font-size:13px}
+    .note{margin:12px 0 0;color:var(--muted);font-size:13px;line-height:1.8}
+    .detailActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    .formGrid{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:980px){.formGrid{grid-template-columns:1fr}}
+    .formCard{padding:16px}
+    .field{display:grid;gap:6px;margin-top:10px}
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:14px;padding:11px 12px;font-size:14px;outline:none;background:#fff;box-shadow:0 10px 18px rgba(10,20,40,.05)}
+    textarea{min-height:120px;resize:vertical}
+    .hint{font-size:12px;color:var(--muted);line-height:1.7;margin-top:8px}
+    .faq{padding:16px}
+    details{border:1px solid var(--line);border-radius:16px;background:#fff;padding:12px;margin-top:10px;box-shadow:0 10px 18px rgba(10,20,40,.05)}
+    summary{cursor:pointer;font-weight:900}
+    details p{margin:8px 0 0;color:var(--muted);line-height:1.8;font-size:13px}
+    .galleryRow{margin-top:14px;display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+    .gCard{grid-column:span 4;border:1px solid var(--line);border-radius:22px;overflow:hidden;background:#fff;box-shadow:var(--shadow)}
+    @media (max-width:980px){.gCard{grid-column:span 6}} @media (max-width:620px){.gCard{grid-column:span 12}}
+    .gCard img{width:100%;height:170px;object-fit:cover;display:block}
+    .gCard .gc{padding:12px}
+    .gCard b{display:block;font-size:13px}
+    .gCard p{margin:6px 0 0;color:var(--muted);font-size:12.5px;line-height:1.7}
+    .foot{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.75;padding:14px 16px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.72)}
+    .brandStrip{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid var(--line);border-radius:18px;
+      background:rgba(255,255,255,.78);box-shadow:0 12px 26px rgba(10,20,40,.06)}
+    .stripLeft{display:flex;align-items:center;gap:10px}
+    .stripLogo{width:34px;height:34px;border-radius:12px;background:linear-gradient(145deg,var(--tcu-blue),#2F86FF);display:grid;place-items:center;color:#fff;font-weight:900;
+      box-shadow:0 10px 18px rgba(11,78,162,.18)}
+    .stripText b{display:block;font-size:12.5px} .stripText span{display:block;font-size:12px;color:var(--muted)}
+    .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:rgba(255,255,255,.92);border:1px solid var(--line);border-radius:999px;padding:10px 12px;
+      box-shadow:0 18px 40px rgba(10,20,40,.18);display:none;gap:10px;align-items:center;z-index:70;font-size:12.5px}
+    .toast.show{display:flex} .toast .tDot{width:9px;height:9px;border-radius:999px;background:var(--tcu-blue)}
   </style>
 </head>
 <body>
-  <div class="wrap">
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" role="img" aria-label="OYA×TCU">
+          <path d="M32 6c14.36 0 26 11.64 26 26S46.36 58 32 58 6 46.36 6 32 17.64 6 32 6Z" fill="rgba(255,255,255,.20)"/>
+          <path d="M32 12c11.05 0 20 8.95 20 20s-8.95 20-20 20-20-8.95-20-20 8.95-20 20-20Z" fill="rgba(255,255,255,.25)"/>
+          <path d="M21 22h22v6H35v22h-6V28h-8v-6Z" fill="white"/>
+          <path d="M44.5 44.5 56 56" stroke="rgba(255,255,255,.85)" stroke-width="4" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div>
+        <h1>OYA×TCU シフト（完成デモ）</h1>
+        <p>尾山台商店街 × 都市大ペース（0限〜7限）</p>
+      </div>
+    </div>
+    <div class="menuRow" id="menuRow">
+      <span class="pill">⏱️ 0限〜7限</span>
+      <a class="menuBtn" href="#/" data-nav="home"><span class="menuIcon">🏠</span>一覧</a>
+      <a class="menuBtn" href="#/map" data-nav="map"><span class="menuIcon">🗺️</span>マップ</a>
+      <a class="menuBtn" href="#/shop" data-nav="shop"><span class="menuIcon">🏪</span>店舗向け</a>
+      <a class="menuBtn" href="#/faq" data-nav="faq"><span class="menuIcon">❓</span>FAQ</a>
+      <div class="hamburger" id="hamburger" aria-label="メニューを開く"><span></span></div>
+    </div>
+  </div>
 
-    <div class="topbar">
-      <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <!-- オリジナル（非公式）ロゴ：OYA×TCU（Oの中にTを抽象化） -->
-          <svg viewBox="0 0 64 64" fill="none" role="img" aria-label="OYA×TCU">
-            <path d="M32 6c14.36 0 26 11.64 26 26S46.36 58 32 58 6 46.36 6 32 17.64 6 32 6Z" fill="rgba(255,255,255,.20)"/>
-            <path d="M32 12c11.05 0 20 8.95 20 20s-8.95 20-20 20-20-8.95-20-20 8.95-20 20-20Z" fill="rgba(255,255,255,.25)"/>
-            <path d="M21 22h22v6H35v22h-6V28h-8v-6Z" fill="white"/>
-            <path d="M44.5 44.5 56 56" stroke="rgba(255,255,255,.85)" stroke-width="4" stroke-linecap="round"/>
-          </svg>
+  <div class="drawerBackdrop" id="drawerBackdrop"></div>
+  <div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="メニュー">
+    <div class="drawerHead">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="logo" aria-hidden="true" style="width:38px;height:38px;border-radius:14px;box-shadow:0 10px 18px rgba(11,78,162,.18)">
+          <svg viewBox="0 0 64 64" fill="none"><path d="M32 6c14.36 0 26 11.64 26 26S46.36 58 32 58 6 46.36 6 32 17.64 6 32 6Z" fill="rgba(255,255,255,.20)"/><path d="M21 22h22v6H35v22h-6V28h-8v-6Z" fill="white"/></svg>
         </div>
         <div>
-          <h1>OYA×TCU シフト（デモ）</h1>
-          <p>尾山台商店街 × 都市大ペース（0限〜7限）</p>
+          <div style="font-weight:900">メニュー</div>
+          <div style="font-size:12px;color:var(--muted)">ページを切り替え</div>
         </div>
       </div>
-
-      <div class="pillrow">
-        <div class="pill">⏱️ 0限〜7限対応 <small>（世田谷キャンパスの時間割を参考）</small></div>
-        <div class="pill">🧑‍🎓 学生向けスポット募集</div>
-        <div class="pill">📍 尾山台周辺</div>
-      </div>
+      <button class="x" id="drawerClose">✕</button>
     </div>
+    <div class="drawerGrid">
+      <a class="menuBtn" href="#/" data-nav="home"><span class="menuIcon">🏠</span>募集一覧</a>
+      <a class="menuBtn" href="#/map" data-nav="map"><span class="menuIcon">🗺️</span>全体マップ</a>
+      <a class="menuBtn" href="#/shop" data-nav="shop"><span class="menuIcon">🏪</span>店舗が募集を出す</a>
+      <a class="menuBtn" href="#/about" data-nav="about"><span class="menuIcon">ℹ️</span>このサービスについて</a>
+      <a class="menuBtn" href="#/faq" data-nav="faq"><span class="menuIcon">❓</span>よくある質問</a>
+    </div>
+    <div class="foot" style="margin-top:auto"><b>デモ仕様</b>：応募・投稿はローカル保存（端末内）です。実運用はログイン/審査/決済などが必要。</div>
+  </div>
 
-    <section class="hero">
-      <div class="panel heroLeft">
-        <div class="kicker"><span class="dot"></span> 授業の合間に、近場で“ちょうどいい”仕事を見つける</div>
-        <h2 class="heroTitle"><span>都市大の時限</span>に合わせて、<br/>お店の募集が見える・応募できる</h2>
-        <p class="heroDesc">
-          尾山台商店街の店舗が「この時間だけ手伝ってほしい」を出せて、学生は授業ペース（0限〜7限）で探して応募できる、という想定のデモページです。
-          クリックで詳細を開き、ボタンで応募（ローカル保存）できます。
-        </p>
-
-        <div class="searchRow">
-          <div class="search" role="search">
-            <span aria-hidden="true">🔎</span>
-            <input id="q" type="search" placeholder="店名・仕事内容で検索（例：レジ / 品出し / 仕込み / 梱包）" />
+  <div class="stage" id="stage">
+    <section class="page" id="page-home">
+      <section class="hero">
+        <div class="glassPanel heroLeft">
+          <div class="kicker"><span class="dot"></span> 授業の合間に、近場で“ちょうどいい”仕事を見つける</div>
+          <h2 class="heroTitle"><span>時限</span>で探して、<span>地図</span>で場所が分かる</h2>
+          <p class="heroDesc">店舗は必要な時限だけ募集を出せて、学生は空きコマ/放課後に合わせて応募できる想定の完成デモです。一覧とマップが連動し、カード/ピンを押すと詳細ページに“レイヤー感”のある遷移で移動します。</p>
+          <div class="searchRow">
+            <div class="search" role="search"><span aria-hidden="true">🔎</span><input id="q" type="search" placeholder="店名・仕事内容で検索（例：レジ / 品出し / 仕込み / 梱包）" /></div>
+            <button class="btn" id="openNow">いまの時限に絞る</button>
           </div>
-          <button class="btn" id="openNow">いまの募集を見る</button>
+          <div class="tabs" id="tabs"></div>
         </div>
-
-        <div class="tabs" id="tabs"></div>
+        <aside class="glassPanel heroRight">
+          <div class="stats">
+            <div class="stat"><b id="statCount">—</b><span>表示中の募集</span></div>
+            <div class="stat"><b id="statApplied">—</b><span>応募済み（この端末）</span></div>
+          </div>
+          <div class="miniCard"><img alt="商店街のイメージ" src="https://images.unsplash.com/photo-1520975958228-3a41b241d5f4?auto=format&fit=crop&w=400&q=80" />
+            <div class="mc"><h3>尾山台までの動線を短く</h3><p>空きコマ・放課後に寄れる距離感で、学業との両立を前提にした設計。</p></div></div>
+          <div class="miniCard"><img alt="アルバイトのイメージ" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=400&q=80" />
+            <div class="mc"><h3>“短時間・即戦力”を最適化</h3><p>お店側は必要な時限だけ募集。学生側はスケジュールに合わせて応募。</p></div></div>
+          <button class="btn secondary" id="reset">応募履歴をリセット</button>
+          <div class="meta" style="margin:0">※デモ：応募はサーバー送信せずローカルに保存します。</div>
+        </aside>
+      </section>
+      <section class="mainSplit">
+        <div class="grid" id="grid" aria-live="polite"></div>
+        <aside class="mapPanel">
+          <div class="mapHead">
+            <div><b>募集マップ（ミニ）</b><span>ピンを押すと詳細へ</span></div>
+            <div class="mapCta"><a class="linklike" id="fitMapMini" href="#">🧭 全体表示</a><a class="linklike" href="#/map">🗺️ マップを見る</a></div>
+          </div>
+          <div id="mapMini" aria-label="募集マップ（ミニ）"></div>
+        </aside>
+      </section>
+      <div class="foot">
+        <div><b>注意：</b>これはプロトタイプ（デモ）です。東京都市大学の公式サービスではありません。デザインの雰囲気は参考にしつつ、ロゴや素材はオリジナル/フリー素材で構成しています。</div>
+        <div>写真：Unsplashのフリー素材（自動取得リンク）。店舗名は尾山台周辺の一般的な業種例を混ぜたデモ表示です。</div>
       </div>
-
-      <aside class="panel heroRight">
-        <div class="stats">
-          <div class="stat"><b id="statCount">—</b><span>表示中の募集</span></div>
-          <div class="stat"><b id="statApplied">—</b><span>応募済み（この端末）</span></div>
-        </div>
-
-        <div class="miniCard">
-          <img alt="商店街のイメージ" src="https://images.unsplash.com/photo-1520975958228-3a41b241d5f4?auto=format&fit=crop&w=400&q=80" />
-          <div class="mc">
-            <h3>尾山台までの動線を短く</h3>
-            <p>空きコマ・放課後に寄れる距離感で、学業との両立を前提にした設計。</p>
-          </div>
-        </div>
-
-        <div class="miniCard">
-          <img alt="アルバイトのイメージ" src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=400&q=80" />
-          <div class="mc">
-            <h3>“短時間・即戦力”を最適化</h3>
-            <p>お店側は必要な時限だけ募集。学生側はスケジュールに合わせて応募。</p>
-          </div>
-        </div>
-
-        <button class="btn secondary" id="reset">応募履歴をリセット</button>
-        <div class="tiny">※デモのため、応募はサーバー送信せずローカルに保存します。</div>
-      </aside>
     </section>
 
-    <main class="grid" id="grid" aria-live="polite"></main>
-
-    <div class="foot">
-      <div><b>注意：</b>これはプロトタイプ（デモ）です。東京都市大学の公式サービスではありません。サイトデザインの雰囲気は参考にしつつ、ロゴや素材はオリジナル/フリー素材で構成しています。</div>
-      <div>写真：Unsplashのフリー素材（自動取得リンク）。店舗名は尾山台周辺の一般的な業種例を混ぜたデモ表示です。</div>
-    </div>
-
-  </div>
-
-  <!-- modal -->
-  <div class="modalWrap" id="modalWrap" role="dialog" aria-modal="true" aria-label="募集詳細">
-    <div class="modal" role="document">
-      <div class="modalImg"><img id="mImg" alt="" src=""/></div>
-      <div class="modalBody">
-        <div class="modalHead">
-          <div>
-            <h2 id="mTitle">—</h2>
-            <p class="meta" id="mMeta">—</p>
+    <section class="page" id="page-detail">
+      <div class="detail">
+        <div class="detailTop">
+          <div class="detailImg"><img id="dImg" alt="" src=""></div>
+          <div class="detailBody">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div><h2 id="dTitle">—</h2><p class="meta" id="dMeta">—</p></div>
+              <a class="linklike" href="#/" id="backLink">← 一覧に戻る</a>
+            </div>
+            <div class="kvgrid">
+              <dl class="kv"><dt>時限</dt><dd id="dPeriod">—</dd></dl>
+              <dl class="kv"><dt>時間</dt><dd id="dTime">—</dd></dl>
+              <dl class="kv"><dt>時給目安</dt><dd id="dPay">—</dd></dl>
+              <dl class="kv"><dt>募集人数</dt><dd id="dNeed">—</dd></dl>
+              <dl class="kv"><dt>仕事内容</dt><dd id="dWork">—</dd></dl>
+              <dl class="kv"><dt>勤務地</dt><dd id="dPlace">—</dd></dl>
+            </div>
+            <p class="note" id="dNote">—</p>
+            <div class="detailActions">
+              <button class="btn" id="applyBtn">応募を確定する</button>
+              <a class="linklike" id="mapLink" href="#" target="_blank" rel="noopener">📍 Googleマップで開く</a>
+              <a class="linklike" id="shareLink" href="#">🔗 この募集リンクをコピー</a>
+            </div>
+            <div class="meta" style="margin:10px 0 0">募集ID：<b id="dId">—</b>（デモ）</div>
           </div>
-          <button class="x" id="close" aria-label="閉じる">✕</button>
         </div>
-
-        <dl class="dl">
-          <div class="kv"><dt>時限</dt><dd id="mPeriod">—</dd></div>
-          <div class="kv"><dt>時間</dt><dd id="mTime">—</dd></div>
-          <div class="kv"><dt>時給目安</dt><dd id="mPay">—</dd></div>
-          <div class="kv"><dt>募集人数</dt><dd id="mNeed">—</dd></div>
-          <div class="kv"><dt>仕事内容</dt><dd id="mWork">—</dd></div>
-          <div class="kv"><dt>勤務地</dt><dd id="mPlace">—</dd></div>
-        </dl>
-
-        <p class="note" id="mNote">—</p>
-
-        <div class="modalActions">
-          <button class="btn" id="applyBtn">応募する</button>
-          <a class="linklike" id="mapLink" href="#" target="_blank" rel="noopener">📍 地図で開く</a>
-          <a class="linklike" id="shareLink" href="#">🔗 この募集をコピー</a>
-        </div>
-        <div class="tiny" id="mTiny"></div>
       </div>
-    </div>
+      <div class="brandStrip">
+        <div class="stripLeft"><div class="stripLogo">O</div><div class="stripText"><b>応募の流れ（想定）</b><span>詳細確認 → 応募確定 → 勤怠（QR/GPS） → 振込</span></div></div>
+        <a class="linklike" href="#/faq">❓ FAQを見る</a>
+      </div>
+    </section>
+
+    <section class="page" id="page-map">
+      <div class="heroBanner">
+        <div class="glassPanel bannerCopy">
+          <div class="kicker"><span class="dot"></span> 全体マップ</div>
+          <h2>今どこで募集してるか、ひと目で分かる</h2>
+          <p>一覧と同じ絞り込み（時限 / 検索）が反映されます。ピンを押すと、そのまま募集の詳細ページに移動します。迷ったら「全体表示」で尾山台周辺の分布を確認。</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="btn" href="#/">一覧に戻る</a><a class="btn secondary" id="fitMapFullBtn" href="#/map">全体表示する</a></div>
+        </div>
+        <div class="bannerImg">
+          <img alt="街の地図イメージ" src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?auto=format&fit=crop&w=900&q=80">
+          <div class="overlay"></div><div class="cap">尾山台周辺 <span>ピンから詳細へ</span></div>
+        </div>
+      </div>
+      <div class="mapFull">
+        <div class="mapFullHead">
+          <div><div style="font-weight:900">全体マップ（インタラクティブ）</div><div style="font-size:12px;color:var(--muted);line-height:1.6">ピンのポップアップ内リンクから詳細へ移動します。</div></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap"><a class="linklike" id="fitMapFull" href="#">🧭 全体表示</a><a class="linklike" href="#/">🏠 一覧へ</a></div>
+        </div>
+        <div id="mapFull" aria-label="全体マップ"></div>
+      </div>
+      <div class="galleryRow">
+        <div class="gCard"><img alt="商店街のイメージ" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>徒歩で回れる範囲</b><p>“授業の前後”に寄れる距離感を優先して枠を設計。</p></div></div>
+        <div class="gCard"><img alt="レジのイメージ" src="https://images.unsplash.com/photo-1556742393-d75f468bfcb0?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>短時間で切れる業務</b><p>レジ補助/品出し/仕込みなど、最初は難易度低めから。</p></div></div>
+        <div class="gCard"><img alt="チームのイメージ" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>相互評価で安全に</b><p>店舗↔学生のレビュー/通報で、ミスマッチを減らす。</p></div></div>
+      </div>
+      <div class="foot">マップは OpenStreetMap を利用しています。実運用では店舗住所の正規化・位置の確認が必要です。</div>
+    </section>
+
+    <section class="page" id="page-shop">
+      <div class="heroBanner">
+        <div class="glassPanel bannerCopy">
+          <div class="kicker"><span class="dot"></span> 店舗向け（デモ）</div>
+          <h2>「この時間だけ手伝ってほしい」を、時限で出す</h2>
+          <p>実運用では店舗認証・審査・労務/保険・勤怠・振込などが必須。ここは“入力して一覧/マップに反映される”体験の完成デモです。</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="btn" href="#/">一覧で確認</a><a class="btn secondary" href="#/map">マップで確認</a></div>
+        </div>
+        <div class="bannerImg">
+          <img alt="店舗運営のイメージ" src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80">
+          <div class="overlay"></div><div class="cap">店舗が募集を出す <span>デモ追加 → 一覧/マップ反映</span></div>
+        </div>
+      </div>
+
+      <div class="glassPanel" style="padding:16px">
+        <div class="formGrid">
+          <div class="glassPanel formCard">
+            <div style="font-weight:900">募集を作る</div>
+            <div class="field"><label>店舗名</label><input id="fShop" placeholder="例：〇〇ベーカリー"/></div>
+            <div class="field"><label>カテゴリ</label><select id="fCat"><option>コンビニ</option><option>飲食</option><option>小売</option><option>サービス</option><option>医療</option><option>その他</option></select></div>
+            <div class="field"><label>時限</label><select id="fPeriod"></select></div>
+            <div class="field"><label>時給目安</label><input id="fPay" placeholder="例：時給1,250円"/></div>
+            <div class="field"><label>募集人数</label><input id="fNeed" placeholder="例：2名"/></div>
+            <div class="field"><label>仕事内容</label><input id="fWork" placeholder="例：品出し / 仕込み / 配膳"/></div>
+            <div class="field"><label>ひとこと</label><textarea id="fNote" placeholder="例：短時間で回すので、未経験でも大丈夫です。"></textarea></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn" id="postJob">デモとして追加</button><button class="btn secondary" id="resetJobs">追加した募集を消す</button></div>
+            <div class="hint">※ここで追加した募集は、この端末にのみ保存されます。</div>
+          </div>
+
+          <div class="glassPanel formCard">
+            <div style="font-weight:900">運用の前提（要件）</div>
+            <div class="hint" style="margin-top:8px">
+              ・店舗側の本人確認/審査（反社/労働条件）<br/>・労務（労働条件通知/深夜/年齢制限）<br/>・勤怠（開始/終了・GPS/QR）<br/>・評価（店舗↔学生）<br/>・報酬（立替/即時払/源泉）<br/>・トラブル対応（キャンセル/遅刻）<br/>
+            </div>
+            <div class="hint" style="margin-top:10px">学生の“授業ペースに合わせる”設計だと、<b>時限</b>を軸に募集・応募・通知が組めるのが強み。</div>
+            <div class="galleryRow" style="margin-top:12px">
+              <div class="gCard" style="grid-column:span 12">
+                <img alt="商店街のイメージ" src="https://images.unsplash.com/photo-1507915135761-41a0a222c709?auto=format&fit=crop&w=900&q=80">
+                <div class="gc"><b>まずは棚卸し</b><p>商店街側の「人手が足りない時間帯」をヒアリングして、枠の形を決めるのが近道。</p></div>
+              </div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="linklike" href="#/about">ℹ️ 仕様メモを見る</a><a class="linklike" href="#/faq">❓ FAQへ</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-about">
+      <div class="heroBanner">
+        <div class="glassPanel bannerCopy">
+          <div class="kicker"><span class="dot"></span> このサービスについて（デモ）</div>
+          <h2>都市大の“時限”をUIに埋め込むと、体験が速くなる</h2>
+          <p>学生側は「空いてる時限」から探せる。店舗側は「この時限だけ」募集できる。その共通言語があると、検索・通知・シフト設計が一気にシンプルになります。</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="btn" href="#/shop">店舗向けデモ</a><a class="btn secondary" href="#/">募集を見る</a></div>
+        </div>
+        <div class="bannerImg">
+          <img alt="キャンパスと街のイメージ" src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=900&q=80">
+          <div class="overlay"></div><div class="cap">キャンパス × 商店街 <span>時間割が共通言語</span></div>
+        </div>
+      </div>
+
+      <div class="formGrid" style="margin-top:14px">
+        <div class="glassPanel formCard">
+          <div style="font-weight:900">MVPで入れたい機能</div>
+          <div class="hint" style="margin-top:8px">
+            ・店舗ログイン/審査（商店街連携）<br/>・時限ベースの募集作成（0限〜7限）<br/>・学生プロフィール/本人確認（学籍）<br/>・応募→確定→勤怠→支払いのフロー<br/>・評価/通報（安全設計）<br/>・キャンセルポリシー<br/>
+          </div>
+        </div>
+        <div class="glassPanel formCard">
+          <div style="font-weight:900">地元連携のポイント</div>
+          <div class="hint" style="margin-top:8px">
+            ・商店街の“人手不足の時間帯”を棚卸し（ヒアリング）<br/>・学生の“空きコマ/移動距離”を加味して枠を設計<br/>・初期は「レジ補助/品出し/仕込み」など、短時間で切り出せる業務から<br/>・安全と労務を優先（深夜/危険作業は除外）<br/>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="linklike" href="#/map">🗺️ マップへ</a><a class="linklike" href="#/faq">❓ FAQへ</a></div>
+        </div>
+      </div>
+
+      <div class="galleryRow">
+        <div class="gCard"><img alt="通知のイメージ" src="https://images.unsplash.com/photo-1517292987719-0369a794ec0f?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>通知が効く</b><p>「次の空きコマに合う募集」を推すと、行動が起きやすい。</p></div></div>
+        <div class="gCard"><img alt="勤怠のイメージ" src="https://images.unsplash.com/photo-1554774853-b414d3b6d6b9?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>勤怠が肝</b><p>開始/終了の検証（QR/GPS）があると店舗側の不安が減る。</p></div></div>
+        <div class="gCard"><img alt="支払いのイメージ" src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>報酬体験</b><p>短時間だと“振込の早さ”が価値。UXの差別化ポイント。</p></div></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-faq">
+      <div class="heroBanner">
+        <div class="glassPanel bannerCopy">
+          <div class="kicker"><span class="dot"></span> FAQ</div>
+          <h2>迷ったらここ</h2>
+          <p>“時限で探す”設計の疑問点と、デモの挙動をまとめています。具体的な運用（労務/審査/勤怠/支払い）は実装フェーズで詰める想定。</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><a class="btn" href="#/">募集一覧へ</a><a class="btn secondary" href="#/about">Aboutへ</a></div>
+        </div>
+        <div class="bannerImg">
+          <img alt="質問のイメージ" src="https://images.unsplash.com/photo-1522071901873-411886a10004?auto=format&fit=crop&w=900&q=80">
+          <div class="overlay"></div><div class="cap">よくある質問 <span>運用の論点も</span></div>
+        </div>
+      </div>
+
+      <div class="glassPanel faq">
+        <details open><summary>Q. 「応募する」を押したらどうなる？</summary><p>一覧では“詳細ページへ移動”します。詳細ページで応募を確定する想定です（このデモはローカル保存）。</p></details>
+        <details><summary>Q. マップはどう使う？</summary><p>一覧のミニマップ、または「マップ」ページで全体表示します。ピンを押すと、その募集の詳細ページに移動します。</p></details>
+        <details><summary>Q. 0限〜7限の時間は固定？</summary><p>デモは固定ですが、実運用はキャンパス/年度で差があるため「年度設定」や「キャンパス別設定」が必要です。</p></details>
+        <details><summary>Q. 実装で一番難しいところは？</summary><p>UIよりも、店舗審査・労務・勤怠・報酬・トラブル対応などの運用設計が難所です。まずは商店街側の要件整理が重要です。</p></details>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px"><a class="linklike" href="#/">🏠 一覧へ</a><a class="linklike" href="#/map">🗺️ マップへ</a><a class="linklike" href="#/shop">🏪 店舗向けへ</a></div>
+      </div>
+
+      <div class="galleryRow">
+        <div class="gCard"><img alt="安全のイメージ" src="https://images.unsplash.com/photo-1521791055366-0d553872125f?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>安全設計</b><p>学籍確認・通報・レビュー・危険作業の除外が最低ライン。</p></div></div>
+        <div class="gCard"><img alt="規約のイメージ" src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>労務/規約</b><p>労働条件通知・キャンセル規定・年齢制限などを先に固める。</p></div></div>
+        <div class="gCard"><img alt="サポートのイメージ" src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=900&q=80"><div class="gc"><b>サポート</b><p>“困った時の窓口”があると、商店街も学生も安心。</p></div></div>
+      </div>
+    </section>
   </div>
 
-  <div class="toast" id="toast"><span class="tDot"></span><span id="toastText">—</span></div>
+  <div class="brandStrip">
+    <div class="stripLeft">
+      <div class="stripLogo">O</div>
+      <div class="stripText"><b>OYA×TCU シフト（完成デモ）</b><span>時限×地図で、学生と商店街の“すき間時間”をつなぐ</span></div>
+    </div>
+    <a class="linklike" href="#/about">ℹ️ About</a>
+  </div>
+
+  <div class="foot"><b>補足：</b>このHTMLは1ファイル完結のデモです（GitHub Pages等に置けばそのまま公開できます）。画像はUnsplashのホットリンクです。オフライン運用にする場合は画像をローカルに差し替えてください。</div>
+</div>
+
+<div class="toast" id="toast"><span class="tDot"></span><span id="toastText">—</span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <script>
-  // === データ（デモ）===
-  // 0限は便宜上、短い朝シフトとして設定（実運用では要調整）
-  // 1〜5限の時間は世田谷キャンパスの授業時間表（2025年度）掲載例を参考にしています。
-  const PERIODS = [
-    {k:"P0", name:"0限", time:"08:10–09:10"},
-    {k:"P1", name:"1限", time:"09:20–11:00"},
-    {k:"P2", name:"2限", time:"11:10–12:50"},
-    {k:"P3", name:"3限", time:"13:40–15:20"},
-    {k:"P4", name:"4限", time:"15:30–17:10"},
-    {k:"P5", name:"5限", time:"17:20–19:00"},
-    {k:"P6", name:"6限", time:"19:10–20:40"},
-    {k:"P7", name:"7限", time:"20:50–22:20"}
+  const PERIODS=[{k:"P0",name:"0限",time:"08:10–09:10"},{k:"P1",name:"1限",time:"09:20–11:00"},{k:"P2",name:"2限",time:"11:10–12:50"},{k:"P3",name:"3限",time:"13:40–15:20"},{k:"P4",name:"4限",time:"15:30–17:10"},{k:"P5",name:"5限",time:"17:20–19:00"},{k:"P6",name:"6限",time:"19:10–20:40"},{k:"P7",name:"7限",time:"20:50–22:20"}];
+  const IMG={bakery:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",yakitori:"https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=900&q=80",flowers:"https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=900&q=80",print:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80",fruit:"https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&w=900&q=80",pharmacy:"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80",bento:"https://images.unsplash.com/photo-1604908176997-125f25cc500e?auto=format&fit=crop&w=900&q=80",konbini:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80"};
+  const BASE_SHIFTS=[
+    {id:"oy-001",shop:"ファミリーマート（デモ）",category:"コンビニ",img:IMG.konbini,period:"P0",pay:"時給1,250円",need:"2名",place:"尾山台駅近く（デモ）",work:"品出し / レジ補助",tags:["朝だけ","初心者OK","駅近"],note:"朝の納品対応が集中する時間帯。レジは補助中心で、品出しメイン。",lat:35.6039,lng:139.6563},
+    {id:"oy-002",shop:"ベーカリー（デモ）",category:"ベーカリー",img:IMG.bakery,period:"P1",pay:"時給1,200円",need:"1名",place:"尾山台商店街（デモ）",work:"袋詰め / レジ補助 / 清掃",tags:["午前","接客","短時間"],note:"ピークは10:00〜。袋詰め中心で、慣れたら簡単な接客も。",lat:35.6042,lng:139.6552},
+    {id:"oy-003",shop:"青果店（デモ）",category:"食品",img:IMG.fruit,period:"P2",pay:"時給1,250円",need:"2名",place:"尾山台商店街（デモ）",work:"陳列 / 値札貼り / 梱包",tags:["空きコマ","体を動かす","接客少なめ"],note:"昼前の補充が中心。声出しや呼び込みは任意。",lat:35.6037,lng:139.6569},
+    {id:"oy-004",shop:"花屋（デモ）",category:"小売",img:IMG.flowers,period:"P3",pay:"時給1,180円",need:"1名",place:"尾山台駅〜商店街エリア（デモ）",work:"水替え / ラッピング補助",tags:["午後","作業中心","静かめ"],note:"ラッピングは先輩が指示します。水替えや整理がメイン。",lat:35.6040,lng:139.6572},
+    {id:"oy-005",shop:"お弁当・惣菜（デモ）",category:"飲食",img:IMG.bento,period:"P4",pay:"時給1,300円",need:"2名",place:"尾山台周辺（デモ）",work:"盛り付け補助 / 受け渡し",tags:["夕方前","衛生研修あり","短時間"],note:"15:30〜の仕込み〜受け渡し。衛生チェック項目あり（当日説明）。",lat:35.6045,lng:139.6560},
+    {id:"oy-006",shop:"焼き鳥店（デモ）",category:"飲食",img:IMG.yakitori,period:"P5",pay:"時給1,350円",need:"2名",place:"尾山台駅周辺（デモ）",work:"ドリンク作り / 配膳補助",tags:["放課後","にぎやか","稼ぎたい"],note:"17:20〜の立ち上げ。忙しいけど短時間で回します。",lat:35.6035,lng:139.6557},
+    {id:"oy-007",shop:"印刷・文具店（デモ）",category:"サービス",img:IMG.print,period:"P6",pay:"時給1,200円",need:"1名",place:"尾山台商店街（デモ）",work:"受付 / 製本補助 / 発送準備",tags:["夜","落ち着き","PC少し"],note:"受付と簡単な製本補助。PC操作は入力程度。",lat:35.6049,lng:139.6550},
+    {id:"oy-008",shop:"薬局（デモ）",category:"医療",img:IMG.pharmacy,period:"P7",pay:"時給1,300円",need:"1名",place:"尾山台駅前（デモ）",work:"棚整理 / 伝票仕分け（非調剤）",tags:["遅め","軽作業","静かめ"],note:"調剤業務は行いません。閉店前の整理中心。",lat:35.6036,lng:139.6561}
   ];
-
-  // Unsplash（フリー）画像：店舗カテゴリの雰囲気用
-  const IMG = {
-    cafe: "https://images.unsplash.com/photo-1442512595331-e89e73853f31?auto=format&fit=crop&w=900&q=80",
-    bakery:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",
-    konbini:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",
-    grocery:"https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=900&q=80",
-    yakitori:"https://images.unsplash.com/photo-1526318896980-cf78c088247c?auto=format&fit=crop&w=900&q=80",
-    flowers:"https://images.unsplash.com/photo-1526045478516-99145907023c?auto=format&fit=crop&w=900&q=80",
-    print:"https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&w=900&q=80",
-    fruit:"https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?auto=format&fit=crop&w=900&q=80",
-    pharmacy:"https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=900&q=80",
-    bento:"https://images.unsplash.com/photo-1604908176997-125f25cc500e?auto=format&fit=crop&w=900&q=80"
-  };
-
-  const SHIFTS = [
-    { id:"oy-001", shop:"ファミリーマート（デモ）", category:"コンビニ", img: IMG.konbini, period:"P0",
-      pay:"時給1,250円", need:"2名", place:"尾山台駅近く（デモ）", work:"品出し / レジ補助",
-      tags:["朝だけ","初心者OK","駅近"], note:"朝の納品対応が集中する時間帯。レジは補助中心で、品出しメイン。", lat:35.6039, lng:139.6563 },
-    { id:"oy-002", shop:"ベーカリー（デモ）", category:"ベーカリー", img: IMG.bakery, period:"P1",
-      pay:"時給1,200円", need:"1名", place:"尾山台商店街（デモ）", work:"袋詰め / レジ補助 / 清掃",
-      tags:["午前","接客","短時間"], note:"ピークは10:00〜。袋詰め中心で、慣れたら簡単な接客も。", lat:35.6042, lng:139.6552 },
-    { id:"oy-003", shop:"青果店（デモ）", category:"食品", img: IMG.fruit, period:"P2",
-      pay:"時給1,250円", need:"2名", place:"尾山台商店街（デモ）", work:"陳列 / 値札貼り / 梱包",
-      tags:["空きコマ","体を動かす","接客少なめ"], note:"昼前の補充が中心。声出しや呼び込みは任意。", lat:35.6037, lng:139.6569 },
-    { id:"oy-004", shop:"花屋（デモ）", category:"小売", img: IMG.flowers, period:"P3",
-      pay:"時給1,180円", need:"1名", place:"尾山台駅〜商店街エリア（デモ）", work:"水替え / ラッピング補助",
-      tags:["午後","作業中心","静かめ"], note:"ラッピングは先輩が指示します。水替えや整理がメイン。", lat:35.6040, lng:139.6572 },
-    { id:"oy-005", shop:"お弁当・惣菜（デモ）", category:"飲食", img: IMG.bento, period:"P4",
-      pay:"時給1,300円", need:"2名", place:"尾山台周辺（デモ）", work:"盛り付け補助 / 受け渡し",
-      tags:["夕方前","衛生研修あり","短時間"], note:"15:30〜の仕込み〜受け渡し。衛生チェック項目あり（当日説明）。", lat:35.6045, lng:139.6560 },
-    { id:"oy-006", shop:"焼き鳥店（デモ）", category:"飲食", img: IMG.yakitori, period:"P5",
-      pay:"時給1,350円", need:"2名", place:"尾山台駅周辺（デモ）", work:"ドリンク作り / 配膳補助",
-      tags:["放課後","にぎやか","稼ぎたい"], note:"17:20〜の立ち上げ。忙しいけど短時間で回します。", lat:35.6035, lng:139.6557 },
-    { id:"oy-007", shop:"印刷・文具店（デモ）", category:"サービス", img: IMG.print, period:"P6",
-      pay:"時給1,200円", need:"1名", place:"尾山台商店街（デモ）", work:"受付 / 製本補助 / 発送準備",
-      tags:["夜","落ち着き","PC少し"], note:"受付と簡単な製本補助。PC操作は入力程度。", lat:35.6049, lng:139.6550 },
-    { id:"oy-008", shop:"薬局（デモ）", category:"医療", img: IMG.pharmacy, period:"P7",
-      pay:"時給1,300円", need:"1名", place:"尾山台駅前（デモ）", work:"棚整理 / 伝票仕分け（非調剤）",
-      tags:["遅め","軽作業","静かめ"], note:"調剤業務は行いません。閉店前の整理中心。", lat:35.6036, lng:139.6561 }
-  ];
-
-  // === 状態 ===
-  const LS_KEY = "oya_tcu_applied_v1";
-  const state = {
-    activePeriod: "ALL",
-    query: "",
-    applied: new Set(JSON.parse(localStorage.getItem(LS_KEY) || "[]")),
-    modalId: null
-  };
-
-  // === util ===
-  const $ = (sel) => document.querySelector(sel);
-  const escapeHtml = (s) => (s ?? "").toString()
-    .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-
-  function showToast(msg){
-    const t = $("#toast");
-    $("#toastText").textContent = msg;
-    t.classList.add("show");
-    clearTimeout(showToast._tm);
-    showToast._tm = setTimeout(()=>t.classList.remove("show"), 1600);
+  const LS_APPLIED="oya_tcu_applied_v4";
+  const LS_EXTRA_JOBS="oya_tcu_extra_jobs_v2";
+  const state={activePeriod:"ALL",query:"",applied:new Set(JSON.parse(localStorage.getItem(LS_APPLIED)||"[]")),extraJobs:JSON.parse(localStorage.getItem(LS_EXTRA_JOBS)||"[]")};
+  const allShifts=()=>BASE_SHIFTS.concat(state.extraJobs);
+  const $=(s)=>document.querySelector(s);
+  const escapeHtml=(s)=>(s??"").toString().replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+  function showToast(msg){const t=$("#toast");$("#toastText").textContent=msg;t.classList.add("show");clearTimeout(showToast._tm);showToast._tm=setTimeout(()=>t.classList.remove("show"),1600);}
+  function saveApplied(){localStorage.setItem(LS_APPLIED,JSON.stringify(Array.from(state.applied)));const el=$("#statApplied");if(el)el.textContent=state.applied.size;}
+  function saveExtraJobs(){localStorage.setItem(LS_EXTRA_JOBS,JSON.stringify(state.extraJobs));}
+  const periodLabel=(k)=>{const p=PERIODS.find(x=>x.k===k);return p?`${p.name}（${p.time}）`:k;};
+  function route(){const hash=(location.hash||"#/").replace("#","");const parts=hash.split("/").filter(Boolean);
+    if(parts[0]==="job"&&parts[1])return{name:"detail",id:decodeURIComponent(parts[1])};
+    if(parts[0]==="map")return{name:"map"};
+    if(parts[0]==="shop")return{name:"shop"};
+    if(parts[0]==="about")return{name:"about"};
+    if(parts[0]==="faq")return{name:"faq"};
+    return{name:"home"};}
+  let currentPage=null;
+  function showPage(name){
+    const map={home:$("#page-home"),detail:$("#page-detail"),map:$("#page-map"),shop:$("#page-shop"),about:$("#page-about"),faq:$("#page-faq")};
+    const next=map[name]; if(!next) return;
+    if(currentPage&&currentPage!==next){currentPage.classList.add("out");setTimeout(()=>{currentPage.classList.remove("show","out");},160);}
+    Object.values(map).forEach(p=>{if(p!==next)p.classList.remove("show");});
+    next.classList.add("show"); currentPage=next;
+    document.querySelectorAll("[data-nav]").forEach(a=>a.classList.toggle("active",a.getAttribute("data-nav")===name));
   }
+  function openDrawer(){$("#drawerBackdrop").classList.add("show");$("#drawer").classList.add("show");document.body.style.overflow="hidden";}
+  function closeDrawer(){$("#drawerBackdrop").classList.remove("show");$("#drawer").classList.remove("show");document.body.style.overflow="";}
+  $("#hamburger").addEventListener("click",openDrawer);
+  $("#drawerBackdrop").addEventListener("click",closeDrawer);
+  $("#drawerClose").addEventListener("click",closeDrawer);
+  document.querySelectorAll("#drawer a").forEach(a=>a.addEventListener("click",closeDrawer));
+  document.addEventListener("keydown",(e)=>{if(e.key==="Escape")closeDrawer();});
 
-  function saveApplied(){
-    localStorage.setItem(LS_KEY, JSON.stringify(Array.from(state.applied)));
-    $("#statApplied").textContent = state.applied.size;
-  }
-
-  function periodLabel(pKey){
-    const p = PERIODS.find(x=>x.k===pKey);
-    return p ? `${p.name}（${p.time}）` : pKey;
-  }
-
-  // === tabs ===
   function renderTabs(){
-    const tabs = $("#tabs");
-    tabs.innerHTML = "";
-
-    const make = (k, label, sub) => {
-      const d = document.createElement("div");
-      d.className = "tab" + (state.activePeriod===k ? " active" : "");
-      d.tabIndex = 0;
-      d.innerHTML = `<strong>${escapeHtml(label)}</strong><span>${escapeHtml(sub||"")}</span>`;
-      d.addEventListener("click", ()=>{ state.activePeriod=k; render(); });
-      d.addEventListener("keydown", (e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); state.activePeriod=k; render(); }});
-      return d;
-    };
-
-    tabs.appendChild(make("ALL", "全部", "0〜7限"));
-    PERIODS.forEach(p=>tabs.appendChild(make(p.k, p.name, p.time)));
+    const tabs=$("#tabs"); tabs.innerHTML="";
+    const make=(k,label,sub)=>{const d=document.createElement("div");d.className="tab"+(state.activePeriod===k?" active":"");d.tabIndex=0;
+      d.innerHTML=`<strong>${escapeHtml(label)}</strong><span>${escapeHtml(sub||"")}</span>`;
+      d.addEventListener("click",()=>{state.activePeriod=k;renderHome();});
+      d.addEventListener("keydown",(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();state.activePeriod=k;renderHome();}});
+      return d;};
+    tabs.appendChild(make("ALL","全部","0〜7限"));
+    PERIODS.forEach(p=>tabs.appendChild(make(p.k,p.name,p.time)));
   }
-
-  // === cards ===
   function matches(shift){
-    const q = state.query.trim().toLowerCase();
-    if(state.activePeriod !== "ALL" && shift.period !== state.activePeriod) return false;
-    if(!q) return true;
-    const hay = `${shift.shop} ${shift.category} ${shift.work} ${(shift.tags||[]).join(" ")}`.toLowerCase();
+    const q=state.query.trim().toLowerCase();
+    if(state.activePeriod!=="ALL"&&shift.period!==state.activePeriod)return false;
+    if(!q)return true;
+    const hay=`${shift.shop} ${shift.category} ${shift.work} ${(shift.tags||[]).join(" ")}`.toLowerCase();
     return hay.includes(q);
   }
 
-  function render(){
-    renderTabs();
-    $("#q").value = state.query;
-    $("#statApplied").textContent = state.applied.size;
-
-    const list = SHIFTS.filter(matches);
-    $("#statCount").textContent = list.length;
-
-    const grid = $("#grid");
-    if(list.length === 0){
-      grid.innerHTML = `
-        <div class="panel" style="grid-column:span 12;padding:18px;background:rgba(255,255,255,.85);border-radius:18px;border:1px solid var(--line);box-shadow:var(--shadow)">
-          <b style="display:block;margin-bottom:6px">該当する募集がありません</b>
-          <div style="color:var(--muted);font-size:13px;line-height:1.8">検索語を変えるか、別の時限を選んでください。</div>
-        </div>`;
-      return;
+  let mapMini,mapFull,layerMini,layerFull;
+  function initMiniMap(){
+    if(mapMini)return;
+    mapMini=L.map("mapMini",{zoomControl:true}).setView([35.6039,139.6563],16);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(mapMini);
+    layerMini=L.layerGroup().addTo(mapMini);
+    $("#fitMapMini").addEventListener("click",(e)=>{e.preventDefault();fitLayer(mapMini,layerMini);});
+    mapMini.on("click",()=>{location.hash="#/map";});
+  }
+  function initFullMap(){
+    if(mapFull)return;
+    mapFull=L.map("mapFull",{zoomControl:true}).setView([35.6039,139.6563],16);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(mapFull);
+    layerFull=L.layerGroup().addTo(mapFull);
+    $("#fitMapFull").addEventListener("click",(e)=>{e.preventDefault();fitLayer(mapFull,layerFull);});
+  }
+  function fitLayer(m,layer){const pts=[];layer.eachLayer(l=>pts.push(l.getLatLng()));if(pts.length){m.fitBounds(L.latLngBounds(pts).pad(0.20));}}
+  function renderMarkers(list,which){
+    if(which==="mini"){
+      initMiniMap(); layerMini.clearLayers();
+      list.forEach(s=>{const applied=state.applied.has(s.id); const m=L.marker([s.lat,s.lng]).addTo(layerMini);
+        m.bindPopup(`<b>${escapeHtml(s.shop)}</b><br/><span style="color:#5A6578">${escapeHtml(s.category)} / ${escapeHtml(periodLabel(s.period))}</span><br/>
+          <span style="font-weight:900;color:#0A3E85">${escapeHtml(s.pay)}</span> ・ ${applied?"応募済み":"募集中"}<br/>
+          <a href="#/job/${encodeURIComponent(s.id)}" style="font-weight:900;color:#0A3E85;text-decoration:none">詳細へ →</a>`);});
+      fitLayer(mapMini,layerMini); setTimeout(()=>mapMini.invalidateSize(),0);
+    }else{
+      initFullMap(); layerFull.clearLayers();
+      list.forEach(s=>{const applied=state.applied.has(s.id); const m=L.marker([s.lat,s.lng]).addTo(layerFull);
+        m.bindPopup(`<b>${escapeHtml(s.shop)}</b><br/><span style="color:#5A6578">${escapeHtml(s.category)} / ${escapeHtml(periodLabel(s.period))}</span><br/>
+          <span style="font-weight:900;color:#0A3E85">${escapeHtml(s.pay)}</span> ・ ${applied?"応募済み":"募集中"}<br/>
+          <a href="#/job/${encodeURIComponent(s.id)}" style="font-weight:900;color:#0A3E85;text-decoration:none">詳細へ →</a>`);});
+      fitLayer(mapFull,layerFull); setTimeout(()=>mapFull.invalidateSize(),0);
     }
+  }
 
-    grid.innerHTML = list.map(s=>{
-      const applied = state.applied.has(s.id);
-      const label = periodLabel(s.period);
-      const tags = (s.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join("");
-      return `
-        <article class="card" data-id="${escapeHtml(s.id)}">
-          <div class="thumb">
-            <img alt="${escapeHtml(s.shop)}のイメージ" src="${escapeHtml(s.img)}"/>
-            <div class="badge"><span class="chip"></span>${escapeHtml(s.category)} / ${escapeHtml(label)}</div>
-          </div>
+  function renderHome(){
+    renderTabs(); $("#q").value=state.query; $("#statApplied").textContent=state.applied.size;
+    const list=allShifts().filter(matches); $("#statCount").textContent=list.length;
+    const grid=$("#grid");
+    if(list.length===0){
+      grid.innerHTML=`<div class="glassPanel" style="grid-column:span 12;padding:18px;border-radius:18px"><b style="display:block;margin-bottom:6px">該当する募集がありません</b><div style="color:var(--muted);font-size:13px;line-height:1.8">検索語を変えるか、別の時限を選んでください。</div></div>`;
+    }else{
+      grid.innerHTML=list.map(s=>{
+        const applied=state.applied.has(s.id);
+        const label=periodLabel(s.period);
+        const tags=(s.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join("");
+        return `<article class="card" data-id="${escapeHtml(s.id)}">
+          <div class="thumb"><img alt="${escapeHtml(s.shop)}のイメージ" src="${escapeHtml(s.img)}"/>
+            <div class="badge"><span class="chip"></span>${escapeHtml(s.category)} / ${escapeHtml(label)}</div></div>
           <div class="body">
-            <div class="titleRow">
-              <h2>${escapeHtml(s.shop)}</h2>
-              <div class="tag" title="応募状況">${applied ? "応募済み" : "募集中"}</div>
-            </div>
+            <div class="titleRow"><h2>${escapeHtml(s.shop)}</h2><div class="tag" title="応募状況">${applied?"応募済み":"募集中"}</div></div>
             <p class="meta"><b>${escapeHtml(s.pay)}</b> ・募集${escapeHtml(s.need)} ・${escapeHtml(s.place)}</p>
             <p class="meta">仕事内容：${escapeHtml(s.work)}</p>
             <div class="row">${tags}</div>
-
-            <div class="actions">
-              <a class="linklike" href="#${escapeHtml(s.id)}" data-open="${escapeHtml(s.id)}">📄 詳細を見る</a>
-              <button class="btn secondary" data-quick="${escapeHtml(s.id)}">${applied ? "応募を取り消す" : "応募する"}</button>
-            </div>
-          </div>
-        </article>`;
-    }).join("");
-
-    // bind
-    grid.querySelectorAll("[data-open]").forEach(el=>{
-      el.addEventListener("click", (e)=>{ e.preventDefault(); openModal(el.getAttribute("data-open")); });
-    });
-    grid.querySelectorAll("[data-quick]").forEach(el=>{
-      el.addEventListener("click", ()=>toggleApply(el.getAttribute("data-quick"), true));
-    });
-  }
-
-  // === modal ===
-  function openModal(id){
-    const s = SHIFTS.find(x=>x.id===id);
-    if(!s) return;
-
-    state.modalId = id;
-    $("#mImg").src = s.img;
-    $("#mImg").alt = `${s.shop}のイメージ`;
-    $("#mTitle").textContent = s.shop;
-    $("#mMeta").innerHTML = `<b>${escapeHtml(s.category)}</b> ・ ${escapeHtml(s.place)}`;
-    $("#mPeriod").textContent = periodLabel(s.period);
-    $("#mTime").textContent = PERIODS.find(p=>p.k===s.period)?.time || "—";
-    $("#mPay").textContent = s.pay;
-    $("#mNeed").textContent = s.need;
-    $("#mWork").textContent = s.work;
-    $("#mPlace").textContent = s.place;
-    $("#mNote").textContent = s.note;
-
-    const applied = state.applied.has(s.id);
-    $("#applyBtn").textContent = applied ? "応募を取り消す" : "応募する";
-    $("#applyBtn").onclick = ()=>toggleApply(s.id, false);
-
-    const mapUrl = `https://www.google.com/maps?q=${encodeURIComponent(s.lat + "," + s.lng)}`;
-    $("#mapLink").href = mapUrl;
-
-    const url = location.origin && location.origin !== "null"
-      ? `${location.origin}${location.pathname}#${s.id}`
-      : `${location.href.split("#")[0]}#${s.id}`;
-
-    $("#shareLink").onclick = async (e)=>{
-      e.preventDefault();
-      try{
-        await navigator.clipboard.writeText(url);
-        showToast("リンクをコピーしました");
-      }catch{
-        showToast("コピーできませんでした（ブラウザ制限）");
-      }
-    };
-
-    $("#mTiny").textContent = `募集ID：${s.id}（デモ）`;
-    $("#modalWrap").classList.add("show");
-    document.body.style.overflow="hidden";
-  }
-
-  function closeModal(){
-    $("#modalWrap").classList.remove("show");
-    document.body.style.overflow="";
-    state.modalId = null;
-  }
-
-  $("#close").addEventListener("click", closeModal);
-  $("#modalWrap").addEventListener("click", (e)=>{ if(e.target.id==="modalWrap") closeModal(); });
-  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") closeModal(); });
-
-  function toggleApply(id, fromCard){
-    if(state.applied.has(id)){
-      state.applied.delete(id);
-      saveApplied();
-      showToast("応募を取り消しました");
-    }else{
-      state.applied.add(id);
-      saveApplied();
-      showToast("応募しました（デモ）");
+            <div class="actions"><a class="linklike" href="#/job/${encodeURIComponent(s.id)}">📄 詳細ページへ</a>
+              <a class="btn secondary" href="#/job/${encodeURIComponent(s.id)}" data-apply="${escapeHtml(s.id)}">応募する</a></div>
+          </div></article>`;
+      }).join("");
+      grid.querySelectorAll(".card").forEach(card=>{
+        card.addEventListener("click",(e)=>{const t=e.target;if(t&&(t.closest("a")||t.closest("button")))return;
+          const id=card.getAttribute("data-id");location.hash=`#/job/${encodeURIComponent(id)}`;});
+      });
+      grid.querySelectorAll("[data-apply]").forEach(a=>a.addEventListener("click",()=>sessionStorage.setItem("focus_apply","1")));
     }
-
-    // update modal button label if needed
-    if(state.modalId === id){
-      $("#applyBtn").textContent = state.applied.has(id) ? "応募を取り消す" : "応募する";
-    }
-
-    render();
-
-    if(fromCard){
-      const el = document.querySelector(`[data-id="${CSS.escape(id)}"]`);
-      if(el) el.scrollIntoView({block:"nearest", behavior:"smooth"});
-    }
+    renderMarkers(list,"mini");
   }
 
-  // quick actions
-  $("#q").addEventListener("input", (e)=>{ state.query = e.target.value; render(); });
+  function renderDetail(id){
+    const s=allShifts().find(x=>x.id===id); if(!s){location.hash="#/";return;}
+    $("#dImg").src=s.img; $("#dImg").alt=`${s.shop}のイメージ`;
+    $("#dTitle").textContent=s.shop; $("#dMeta").innerHTML=`<b>${escapeHtml(s.category)}</b> ・ ${escapeHtml(s.place)}`;
+    $("#dPeriod").textContent=periodLabel(s.period); $("#dTime").textContent=PERIODS.find(p=>p.k===s.period)?.time||"—";
+    $("#dPay").textContent=s.pay; $("#dNeed").textContent=s.need; $("#dWork").textContent=s.work; $("#dPlace").textContent=s.place; $("#dNote").textContent=s.note; $("#dId").textContent=s.id;
+    const applied=state.applied.has(s.id);
+    $("#applyBtn").textContent=applied?"応募を取り消す":"応募を確定する";
+    $("#applyBtn").onclick=()=>{if(state.applied.has(s.id)){state.applied.delete(s.id);saveApplied();showToast("応募を取り消しました");$("#applyBtn").textContent="応募を確定する";}
+      else{state.applied.add(s.id);saveApplied();showToast("応募しました（デモ）");$("#applyBtn").textContent="応募を取り消す";}};
+    $("#mapLink").href=`https://www.google.com/maps?q=${encodeURIComponent(s.lat+","+s.lng)}`;
+    $("#shareLink").onclick=async(e)=>{e.preventDefault();
+      const url=(location.origin&&location.origin!=="null")?`${location.origin}${location.pathname}#/job/${s.id}`:`${location.href.split("#")[0]}#/job/${s.id}`;
+      try{await navigator.clipboard.writeText(url);showToast("リンクをコピーしました");}catch{showToast("コピーできませんでした（ブラウザ制限）");}};
+    if(sessionStorage.getItem("focus_apply")==="1"){sessionStorage.removeItem("focus_apply");
+      setTimeout(()=>{$("#applyBtn").scrollIntoView({behavior:"smooth",block:"center"});showToast("詳細を確認して応募を確定してください");},120);}
+  }
 
-  $("#openNow").addEventListener("click", ()=>{
-    // “今”を簡易的に時限へマッピング（デモ）
-    const now = new Date();
-    const minutes = now.getHours()*60 + now.getMinutes();
-    const ranges = [
-      {k:"P0", a: 8*60+10, b: 9*60+10},
-      {k:"P1", a: 9*60+20, b: 11*60+0},
-      {k:"P2", a: 11*60+10, b: 12*60+50},
-      {k:"P3", a: 13*60+40, b: 15*60+20},
-      {k:"P4", a: 15*60+30, b: 17*60+10},
-      {k:"P5", a: 17*60+20, b: 19*60+0},
-      {k:"P6", a: 19*60+10, b: 20*60+40},
-      {k:"P7", a: 20*60+50, b: 22*60+20}
-    ];
-    const hit = ranges.find(r => minutes>=r.a && minutes<=r.b);
-    state.activePeriod = hit ? hit.k : "ALL";
-    render();
-    showToast(hit ? `いまの時限：${periodLabel(hit.k)}` : "いまは授業時間外（全部表示）");
+  function renderMapPage(){
+    const list=allShifts().filter(matches);
+    renderMarkers(list,"full");
+    const btn=$("#fitMapFullBtn"); if(btn) btn.onclick=(e)=>{e.preventDefault(); if(mapFull&&layerFull) fitLayer(mapFull,layerFull);};
+  }
+  function initShopPage(){const sel=$("#fPeriod"); if(!sel) return; sel.innerHTML=PERIODS.map(p=>`<option value="${p.k}">${p.name}（${p.time}）</option>`).join("");}
+
+  document.addEventListener("click",(e)=>{
+    const t=e.target;
+    if(t&&t.id==="postJob"){
+      const id="oy-x"+Math.random().toString(16).slice(2,7);
+      const period=$("#fPeriod").value;
+      const shop=$("#fShop").value.trim()||"店舗名（デモ追加）";
+      const category=$("#fCat").value;
+      const pay=$("#fPay").value.trim()||"時給1,200円";
+      const need=$("#fNeed").value.trim()||"1名";
+      const work=$("#fWork").value.trim()||"作業補助";
+      const note=$("#fNote").value.trim()||"（デモ追加の募集）";
+      const baseLat=35.6039,baseLng=139.6563;
+      const lat=baseLat+(Math.random()-0.5)*0.0035;
+      const lng=baseLng+(Math.random()-0.5)*0.0045;
+      const job={id,shop,category,img:IMG.konbini,period,pay,need,place:"尾山台周辺（デモ追加）",work,tags:["デモ追加"],note,lat,lng};
+      state.extraJobs.unshift(job); saveExtraJobs(); showToast("募集を追加しました（デモ）");
+    }
+    if(t&&t.id==="resetJobs"){state.extraJobs=[];saveExtraJobs();showToast("追加した募集を消しました");}
   });
 
-  $("#reset").addEventListener("click", ()=>{
-    state.applied = new Set();
-    saveApplied();
-    render();
-    showToast("応募履歴をリセットしました");
+  $("#q").addEventListener("input",(e)=>{state.query=e.target.value;renderHome();});
+  $("#openNow").addEventListener("click",()=>{
+    const now=new Date(); const minutes=now.getHours()*60+now.getMinutes();
+    const ranges=[{k:"P0",a:8*60+10,b:9*60+10},{k:"P1",a:9*60+20,b:11*60+0},{k:"P2",a:11*60+10,b:12*60+50},{k:"P3",a:13*60+40,b:15*60+20},{k:"P4",a:15*60+30,b:17*60+10},{k:"P5",a:17*60+20,b:19*60+0},{k:"P6",a:19*60+10,b:20*60+40},{k:"P7",a:20*60+50,b:22*60+20}];
+    const hit=ranges.find(r=>minutes>=r.a&&minutes<=r.b);
+    state.activePeriod=hit?hit.k:"ALL";
+    renderHome();
+    showToast(hit?`いまの時限：${periodLabel(hit.k)}`:"いまは授業時間外（全部表示）");
   });
+  $("#reset").addEventListener("click",()=>{state.applied=new Set();saveApplied();renderHome();showToast("応募履歴をリセットしました");});
 
-  // deep link
-  function boot(){
-    renderTabs();
-    saveApplied();
-    render();
-    const hash = (location.hash || "").replace("#","");
-    if(hash){
-      const exists = SHIFTS.some(s=>s.id===hash);
-      if(exists) openModal(hash);
-    }
+  function mount(){
+    const r=route(); showPage(r.name);
+    if(r.name==="home"){saveApplied();renderHome();}
+    else if(r.name==="detail"){saveApplied();renderDetail(r.id);window.scrollTo({top:0,behavior:"instant"});}
+    else if(r.name==="map"){renderMapPage();window.scrollTo({top:0,behavior:"instant"});}
+    else if(r.name==="shop"){initShopPage();window.scrollTo({top:0,behavior:"instant"});}
+    else if(r.name==="about"||r.name==="faq"){window.scrollTo({top:0,behavior:"instant"});}
   }
-  boot();
+  window.addEventListener("hashchange",mount);
+  mount();
 </script>
 </body>
 </html>
